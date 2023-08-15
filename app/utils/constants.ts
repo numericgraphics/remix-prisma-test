@@ -21,8 +21,6 @@ export const colorMap = {
     HANDSUP: '🙌🏻',
   }
 
-  // app/utils/constants.ts
-// ...
 export const sortOptions = [
     {
       name: 'Date',
@@ -37,3 +35,10 @@ export const sortOptions = [
       value: 'emoji',
     },
   ]
+
+  export const departments = [
+    { name: "HR", value: "HR" },
+    { name: "Engineering", value: "ENGINEERING" },
+    { name: "Sales", value: "SALES" },
+    { name: "Marketing", value: "MARKETING" },
+  ];

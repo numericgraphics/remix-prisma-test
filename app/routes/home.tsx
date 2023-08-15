@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { requireUserId } from "~/utils/auth.server";
+import { requireUserId, getUser } from "~/utils/auth.server";
 import { Layout } from "~/components/layout";
 import { UserPanel } from "~/components/user-panel";
 import { getOtherUsers } from "~/utils/user.server";
@@ -24,6 +24,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const sort = url.searchParams.get("sort");
   const filter = url.searchParams.get("filter");
   const recentKudos = await getRecentKudos();
+  const user = await getUser(request);
 
   let sortOptions: Prisma.KudoOrderByWithRelationInput = {};
   if (sort) {
@@ -64,11 +65,11 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   const kudos = await getFilteredKudos(userId, sortOptions, textFilter);
-  return json({ users, kudos, recentKudos });
+  return json({ users, kudos, recentKudos, user });
 };
 
 export default function Home() {
-  const { users, kudos, recentKudos } = useLoaderData();
+  const { users, kudos, recentKudos, user } = useLoaderData();
 
   return (
     <Layout>
@@ -76,7 +77,7 @@ export default function Home() {
       <div className="h-full flex">
         <UserPanel users={users} />
         <div className="flex-1 flex flex-col">
-          <SearchBar />
+          <SearchBar profile={user.profile} />
           <div className="flex-1 flex">
             <div className="w-full p-10 flex flex-col gap-y-4">
               {kudos.map((kudo: KudoWithProfile) => (
