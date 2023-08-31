@@ -9,12 +9,16 @@ export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request);
   const imageUrl = await uploadAvatar(request);
 
+  if (!imageUrl) {
+    return;
+  }
+
   //  TODO : check prisma schema
   await prisma.user.update({
     data: {
       profile: {
         update: {
-          profilePicture: imageUrl,
+          profilePicture: imageUrl.toString(),
         },
       },
     },

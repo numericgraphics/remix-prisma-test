@@ -7,17 +7,16 @@ interface props {
 }
 
 export function UserCircle({ profile, onClick, className }: props) {
-  // console.log("profilePicture", profile?.profilePicture);
   return (
     <div
       className={`${className} cursor-pointer bg-gray-400 rounded-full flex justify-center items-center`}
       onClick={onClick}
-      // style={{
-      //   backgroundSize: "cover",
-      //   ...(profile.profilePicture
-      //     ? { backgroundImage: `url(${profile.profilePicture})` }
-      //     : {}),
-      // }}
+      style={{
+        backgroundSize: "cover",
+        ...(profile.profilePicture
+          ? { backgroundImage: `url(${profile.profilePicture})` }
+          : {}),
+      }}
     >
       {!profile.profilePicture && (
         <h2>
