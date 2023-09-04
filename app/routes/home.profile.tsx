@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { LoaderFunction, ActionFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useActionData } from "@remix-run/react";
 import { Modal } from "~/components/modal";
 import { getUser, requireUserId, logout } from "~/utils/auth.server";
 import { FormField } from "~/components/form-field";
@@ -65,10 +65,16 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function ProfileSettings() {
   const { user } = useLoaderData();
+  const actionData = useActionData();
+  const [formError, setFormError] = useState(actionData?.error || "");
+  const firstLoad = useRef(true);
   const [formData, setFormData] = useState({
-    firstName: user?.profile?.firstName,
-    lastName: user?.profile?.lastName,
-    department: user?.profile?.department || "MARKETING",
+    firstName: actionData?.fields?.firstName || user?.profile?.firstName,
+    lastName: actionData?.fields?.lastName || user?.profile?.lastName,
+    department:
+      actionData?.fields?.department ||
+      user?.profile?.department ||
+      "MARKETING",
     profilePicture: user?.profile?.profilePicture || "",
   });
 
@@ -93,12 +99,25 @@ export default function ProfileSettings() {
     setFormData((form) => ({ ...form, [field]: event.target.value }));
   };
 
+  useEffect(() => {
+    if (!firstLoad.current) {
+      setFormError("");
+    }
+  }, [formData]);
+
+  useEffect(() => {
+    firstLoad.current = false;
+  }, []);
+
   return (
     <Modal isOpen={true} className="w-1/3">
       <div className="p-3">
         <h2 className="text-4xl font-semibold text-blue-600 text-center mb-4">
           Your Profile
         </h2>
+        <div className="text-xs font-semibold text-center tracking-wide text-red-500 w-full mb-2">
+          {formError}
+        </div>
         <div className="flex">
           <div className="w-1/3">
             <ImageUploader
@@ -118,12 +137,14 @@ export default function ProfileSettings() {
                 label="First Name"
                 value={formData.firstName}
                 onChange={(e) => handleInputChange(e, "firstName")}
+                error={actionData?.errors?.firstName}
               />
               <FormField
                 htmlFor="lastName"
                 label="Last Name"
                 value={formData.lastName}
                 onChange={(e) => handleInputChange(e, "lastName")}
+                error={actionData?.errors?.lastName}
               />
               <SelectBox
                 className="w-full rounded-xl px-3 py-2 text-gray-400"
